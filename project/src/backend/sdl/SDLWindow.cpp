@@ -118,9 +118,20 @@ namespace lime {
 
 		if (flags & WINDOW_FLAG_HARDWARE) {
 
-			context = SDL_GL_CreateContext (sdlWindow);
+    		#ifdef LIME_OPENGL_GL
+    		int glVersions[][2] = { {4,6}, {4,5}, {4,4}, {4,3}, {4,2}, {4,1}, {4,0}, {3,3}, {3,2} };
+    		for (auto& v : glVersions) {
+    		    SDL_GL_SetAttribute (SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+    		    SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, v[0]);
+    		    SDL_GL_SetAttribute (SDL_GL_CONTEXT_MINOR_VERSION, v[1]);
+    		    context = SDL_GL_CreateContext (sdlWindow);
+    		    if (context) break;
+    		}
+    		#else
+    		context = SDL_GL_CreateContext (sdlWindow);
+    		#endif
 
-			if (context && SDL_GL_MakeCurrent (sdlWindow, context)) {
+    		if (context && SDL_GL_MakeCurrent (sdlWindow, context)) {
 
 				SetVSyncMode ((flags & WINDOW_FLAG_VSYNC) ? WINDOW_VSYNC_ON : WINDOW_VSYNC_OFF);
 
